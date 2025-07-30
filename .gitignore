@@ -1,0 +1,7 @@
+﻿.vs
+packages
+TestVSMod/bin
+TestVSMod/obj/Release
+TestVSMod/obj
+TestVSMod/TestVSMod.csproj.user
+TestVSMod.sln

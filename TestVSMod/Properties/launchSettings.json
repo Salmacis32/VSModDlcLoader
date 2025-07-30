@@ -1,0 +1,15 @@
+{
+  "profiles": {
+    "TestVSMod": {
+      "commandName": "Project",
+      "commandLineArgs": "--melonloader.launchdebugger\r\n--melonloader.debug",
+      "workingDirectory": "F:\\SteamLibrary\\steamapps\\common\\Vampire Survivors",
+      "remoteDebugEnabled": false
+    },
+    "Profile 1": {
+      "commandName": "Executable",
+      "executablePath": "F:\\SteamLibrary\\steamapps\\common\\Vampire Survivors\\VampireSurvivors.exe",
+      "commandLineArgs": "--melonloader.launchdebugger\r\n--melonloader.debug\r\n--melonloader.captureplayerlogs"
+    }
+  }
+}
