@@ -14,12 +14,16 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 	<ItemGroup>
+	  <None Remove="Data\musicData_Modded.json" />
 	  <None Remove="Data\WEAPON_DATA.json" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Reference Include="Assembly-CSharp">
 			<HintPath>F:\SteamLibrary\steamapps\common\Vampire Survivors\MelonLoader\Il2CppAssemblies\Assembly-CSharp.dll</HintPath>
+		</Reference>
+		<Reference Include="AudioImportLib">
+		  <HintPath>F:\SteamLibrary\steamapps\common\Vampire Survivors\Mods\AudioImportLib.dll</HintPath>
 		</Reference>
 		<Reference Include="Il2CppAppleAuth">
 			<HintPath>F:\SteamLibrary\steamapps\common\Vampire Survivors\MelonLoader\Il2CppAssemblies\Il2CppAppleAuth.dll</HintPath>
@@ -493,6 +497,7 @@
 
 	<ItemGroup>
 		<Compile Include="Core.cs" />
+		<Compile Include="Models\SongData.cs" />
 		<Compile Include="Models\WeaponInfo.cs" />
 		<Compile Include="Patches\GameManagerPatches.cs" />
 		<Compile Include="Patches\LocalizationManagerPatches.cs" />
@@ -503,9 +508,11 @@
 		<Compile Include="Util\Il2CppDictionaryExtensions.cs" />
 		<Compile Include="Util\Il2CppEnumerableExtensions.cs" />
 		<Compile Include="Util\Il2CppListExtensions.cs" />
+		<Compile Include="Util\StreamExtensions.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <EmbeddedResource Include="Data\musicData_Modded.json" />
 	  <EmbeddedResource Include="Data\WEAPON_DATA.json" />
 	</ItemGroup>
 	

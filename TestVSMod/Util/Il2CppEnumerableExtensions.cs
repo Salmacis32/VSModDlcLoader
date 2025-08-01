@@ -22,5 +22,26 @@ namespace TestVSMod.Util
             return il2CppList;
         }
 
+        /// <summary>
+        /// Return as Il2CppSystem.List
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="enumerable"></param>
+        /// <returns></returns>
+        public static Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<T> ToIl2CppArray<T>(this IEnumerable<T> enumerable) where T : unmanaged
+        {
+            var count = enumerable.Count();
+            var il2CppList = new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<T>(count);
+
+            using var enumerator = enumerable.GetEnumerator();
+            int i = 0;
+            while (enumerator.MoveNext())
+            {
+                il2CppList[i] = enumerator.Current;
+                i++;
+            }
+
+            return il2CppList;
+        }
     }
 }

@@ -6,9 +6,19 @@ using Il2CppVampireSurvivors.Data;
 using TestVSMod.Models;
 using HarmonyLib;
 using Il2CppNewtonsoft.Json;
+using Il2CppDarkTonic.MasterAudio;
+using static Il2CppDarkTonic.MasterAudio.MasterAudio;
+using Il2CppVampireSurvivors.Framework.Loading;
+using Il2CppVampireSurvivors.Framework.DLC.Types;
+using Il2CppInterop.Runtime.Runtime;
+using UnityEngine.AddressableAssets;
+using UnityEngine;
+using AudioImportLib;
+using MelonLoader.Utils;
 
 [assembly: MelonInfo(typeof(TestVSMod.Core), "TestVSMod", "1.0.0", "warde", null)]
 [assembly: MelonGame("poncle", "Vampire Survivors")]
+[assembly: MelonAdditionalDependencies("AudioImportLib")]
 
 namespace TestVSMod
 {
@@ -18,6 +28,9 @@ namespace TestVSMod
         public static IEnumerable<WeaponInfo> ModdedWeaponInfo;
         public static Il2Col.Dictionary<WeaponType, Il2Col.List<WeaponData>> Il2CppModdedWeaponInfo;
         public static GameManager GameManager;
+        public static string MusicJson;
+        public static IDictionary<int, SongData> Music;
+        private const int SongIdStart = 1410;
 
         public override void OnInitializeMelon()
         {
@@ -26,15 +39,23 @@ namespace TestVSMod
             LoggerInstance.Msg("Created ModdedWeaponInfo.");
             Il2CppModdedWeaponInfo = new Il2Col.Dictionary<WeaponType, Il2Col.List<WeaponData>>();
             LoggerInstance.Msg("Created Il2CppModdedWeaponInfo.");
-
-            var ass = MelonAssembly.Assembly.GetManifestResourceStream("TestVSMod.Data.WEAPON_DATA.json");
-            var read = new StreamReader(ass);
+            HarmonyLib.Harmony harmony = HarmonyInstance;
+            var ass = MelonAssembly.Assembly;
+            var wdj = ass.GetManifestResourceStream("TestVSMod.Data.WEAPON_DATA.json");
+            var read = new StreamReader(wdj);
             var jobj = JsonConvert.DeserializeObject<Il2Col.Dictionary<WeaponType, Il2Col.List<WeaponData>>>(read.ReadToEnd());
             if (jobj != null) Il2CppModdedWeaponInfo = jobj;
             foreach (var il2obj in jobj)
             {
                 ModdedWeaponInfo = ModdedWeaponInfo.AddItem(new WeaponInfo(il2obj));
             }
+
+            var mdmj = ass.GetManifestResourceStream("TestVSMod.Data.musicData_Modded.json");
+            var read2 = new StreamReader(mdmj);
+            MusicJson = read2.ReadToEnd();
+            Music = new Dictionary<int, SongData>();
+            Music.Add(SongIdStart, new SongData(API.LoadAudioClip(MelonEnvironment.UserDataDirectory + "\\CustomAudio\\BGM_Pactronica.mp3", true), "PAC TRONICA"));
+            Music.Add(SongIdStart + 1, new SongData(API.LoadAudioClip(MelonEnvironment.UserDataDirectory + "\\CustomAudio\\BGM_PacMadness.mp3", true), "PAC MADNESS"));
         }
 
         public override void OnDeinitializeMelon()
@@ -42,19 +63,11 @@ namespace TestVSMod
             ModdedWeaponInfo = null;
             Il2CppModdedWeaponInfo = null;
             LoggerInstance.Msg("Set lists to null.");
+            Music = null;
+            MusicJson = null;
+            GameManager = null;
         }
         /*
-        [HarmonyPatch(typeof(DlcSystem))]
-        static class PatchDlcSystem
-        {
-            [HarmonyPatch(nameof(DlcSystem.GetDlcTypesToLoad))]
-            [HarmonyPostfix]
-            static void LoadingDLCSTytpe(ref Il2Col.List<DlcType> __result)
-            {
-                //__result.Add((DlcType)10000);
-            }
-        }
-
         [HarmonyPatch(typeof(LicenseManager))]
         static class PatchLicenseManager
         {
