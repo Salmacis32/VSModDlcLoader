@@ -12,5 +12,7 @@ namespace TestVSMod.Models
 
         public AudioClip Clip { get; set; }
         public string Name { get; set; }
+        public float LoopStart { get; set; }
+        public float LoopEnd { get; set; }
     }
 }

@@ -31,6 +31,7 @@ namespace TestVSMod
         public static string MusicJson;
         public static IDictionary<int, SongData> Music;
         private const int SongIdStart = 1410;
+        public static SongData TestSong;
 
         public override void OnInitializeMelon()
         {
@@ -40,7 +41,26 @@ namespace TestVSMod
             Il2CppModdedWeaponInfo = new Il2Col.Dictionary<WeaponType, Il2Col.List<WeaponData>>();
             LoggerInstance.Msg("Created Il2CppModdedWeaponInfo.");
             HarmonyLib.Harmony harmony = HarmonyInstance;
+
             var ass = MelonAssembly.Assembly;
+            //LoadWeaponJson(ass);
+            LoadMusicJson(ass);
+        }
+
+        private static void LoadMusicJson(System.Reflection.Assembly ass)
+        {
+            var mdmj = ass.GetManifestResourceStream("TestVSMod.Data.musicData_Modded.json");
+            var read2 = new StreamReader(mdmj);
+            MusicJson = read2.ReadToEnd();
+            Music = new Dictionary<int, SongData>();
+            Music.Add(SongIdStart, new SongData(API.LoadAudioClip(MelonEnvironment.UserDataDirectory + "\\CustomAudio\\BGM_Pactronica2.wav", true), "PAC TRONICA"));
+            Music.Add(SongIdStart + 1, new SongData(API.LoadAudioClip(MelonEnvironment.UserDataDirectory + "\\CustomAudio\\BGM_PacMadness.mp3", true), "PAC MADNESS"));
+            Music.Add(SongIdStart + 2, new SongData(API.LoadAudioClip(MelonEnvironment.UserDataDirectory + "\\CustomAudio\\BGM_PacJumpUp.mp3", true), "PAC JUMP UP"));
+            TestSong = new SongData(API.LoadAudioClip(MelonEnvironment.UserDataDirectory + "\\CustomAudio\\BGM_Pactronica1.wav", true), "PAC TRONICApre");
+        }
+
+        private static void LoadWeaponJson(System.Reflection.Assembly ass)
+        {
             var wdj = ass.GetManifestResourceStream("TestVSMod.Data.WEAPON_DATA.json");
             var read = new StreamReader(wdj);
             var jobj = JsonConvert.DeserializeObject<Il2Col.Dictionary<WeaponType, Il2Col.List<WeaponData>>>(read.ReadToEnd());
@@ -49,13 +69,6 @@ namespace TestVSMod
             {
                 ModdedWeaponInfo = ModdedWeaponInfo.AddItem(new WeaponInfo(il2obj));
             }
-
-            var mdmj = ass.GetManifestResourceStream("TestVSMod.Data.musicData_Modded.json");
-            var read2 = new StreamReader(mdmj);
-            MusicJson = read2.ReadToEnd();
-            Music = new Dictionary<int, SongData>();
-            Music.Add(SongIdStart, new SongData(API.LoadAudioClip(MelonEnvironment.UserDataDirectory + "\\CustomAudio\\BGM_Pactronica.mp3", true), "PAC TRONICA"));
-            Music.Add(SongIdStart + 1, new SongData(API.LoadAudioClip(MelonEnvironment.UserDataDirectory + "\\CustomAudio\\BGM_PacMadness.mp3", true), "PAC MADNESS"));
         }
 
         public override void OnDeinitializeMelon()

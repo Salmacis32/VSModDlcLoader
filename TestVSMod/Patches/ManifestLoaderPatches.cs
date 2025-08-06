@@ -12,6 +12,7 @@ using Il2CppVampireSurvivors.Framework.DLC;
 using Il2CppVampireSurvivors.Objects.Projectiles;
 using Il2CppVampireSurvivors.Objects.Weapons;
 using Il2CppZenject;
+using TestVSMod.Factories;
 using TestVSMod.Util;
 using Unity.Services.Core.Configuration;
 using UnityEngine;
@@ -45,11 +46,11 @@ namespace TestVSMod.Patches
         {
             if (dlcType != DlcType.Emeralds) return;
             DlcType modDlcType = (DlcType)10000;
-            var weaponData = ManifestLoader._sInstance._dataManager;
+
+            var dataManager = ManifestLoader._sInstance._dataManager;
             var modDlcData = ScriptableObject.CreateInstance<BundleManifestData>();
             modDlcData._Version = "1.0.0"; modDlcData.name = "BundleManifestData - Modded"; modDlcData._DataFiles = new DataManagerSettings();
-            modDlcData._WeaponFactory = ScriptableObject.CreateInstance<WeaponFactory>();
-            WeaponAdder(weaponData, modDlcData, modDlcType);
+            WeaponAdder(dataManager, modDlcData, modDlcType);
             MusicAdder(modDlcData);
             DlcSystem.MountedPaths.Add((DlcType)10000, "");
             ManifestLoader.LoadManifest(modDlcData, modDlcType, onComplete);
@@ -64,27 +65,17 @@ namespace TestVSMod.Patches
             return comp;
         }
 
-        private static void MusicAdder(BundleManifestData modDlcData)
+        private static void MusicAdder(BundleManifestData manifestData)
         {
-            var sounds = ProjectContext._instance._container.InstantiateComponentOnNewGameObject<DynamicSoundGroupCreator>();
-            
-
-            foreach (var song in Core.Music)
-            {
-                Playlist playlist = new Playlist() { playlistName = song.Key.ToString() };
-                playlist.MusicSettings.Add(new MusicSetting() { clip = song.Value.Clip, songName = song.Key.ToString(), alias = song.Value.Name, isLoop = true, audLocation = AudioLocation.Clip });
-                sounds.musicPlaylists = new Il2Col.List<Playlist>();
-                MasterAudio.CreatePlaylist(playlist, sounds);
-                sounds.musicPlaylists.Add(playlist);
-            }
-            
             TextAsset textAsset = new TextAsset(Core.MusicJson);
-            modDlcData.DataFiles._MusicDataJsonAsset = textAsset;
-            modDlcData._DynamicSoundGroup = sounds;
+            manifestData.DataFiles._MusicDataJsonAsset = textAsset;
+            manifestData._DynamicSoundGroup = DynamicSoundGroupFactory.DefaultModdedGroup();
         }
 
         private static void WeaponAdder(Il2CppVampireSurvivors.Data.DataManager __instance, BundleManifestData modDlcData, DlcType dlcType)
         {
+            if (Core.Il2CppModdedWeaponInfo == null || Core.Il2CppModdedWeaponInfo.Count == 0) return;
+            modDlcData._WeaponFactory = ScriptableObject.CreateInstance<WeaponFactory>();
             foreach (var newWeapon in Core.Il2CppModdedWeaponInfo)
             {
                 AxeWeapon comp = GetPrefab(newWeapon);

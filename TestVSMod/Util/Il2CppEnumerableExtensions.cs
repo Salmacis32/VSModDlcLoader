@@ -3,7 +3,7 @@ using Il2Col = Il2CppSystem.Collections.Generic;
 
 namespace TestVSMod.Util
 {
-    internal static class Il2CppEnumerableExtensions
+    public static class Il2CppEnumerableExtensions
     {
         /// <summary>
         /// Return as Il2CppSystem.List
@@ -32,6 +32,22 @@ namespace TestVSMod.Util
         {
             var count = enumerable.Count();
             var il2CppList = new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppStructArray<T>(count);
+
+            using var enumerator = enumerable.GetEnumerator();
+            int i = 0;
+            while (enumerator.MoveNext())
+            {
+                il2CppList[i] = enumerator.Current;
+                i++;
+            }
+
+            return il2CppList;
+        }
+
+        public static Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<T> ToIl2CppRefArray<T>(this IEnumerable<T> enumerable) where T : Il2CppObjectBase
+        {
+            var count = enumerable.Count();
+            var il2CppList = new Il2CppInterop.Runtime.InteropTypes.Arrays.Il2CppReferenceArray<T>(count);
 
             using var enumerator = enumerable.GetEnumerator();
             int i = 0;
