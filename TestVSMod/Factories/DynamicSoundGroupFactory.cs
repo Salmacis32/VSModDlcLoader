@@ -18,15 +18,12 @@ namespace TestVSMod.Factories
             foreach (var song in Core.Music)
             {
                 Playlist playlist = new Playlist() { playlistName = song.Key.ToString() };
-                var setting = new MusicSetting() { clip = song.Value.Clip, songName = song.Key.ToString(), alias = song.Value.Name, isLoop = true, audLocation = AudioLocation.Clip };
-                if (song.Value.LoopStart > 0f)
+                foreach (var clip in song.Value)
                 {
-                    setting.songStartTimeMode = CustomSongStartTimeMode.SpecificTime;
-                    setting.customStartTime = song.Value.LoopStart;
+                    var setting = new MusicSetting() { clip = clip.Clip, songName = clip.Name, isLoop = clip.Loop, audLocation = AudioLocation.Clip };
+                    playlist.MusicSettings.Add(setting);
                 }
-                
-                if (song.Key == 1410) playlist.MusicSettings.Add(new MusicSetting() { clip = Core.TestSong.Clip, songName = Core.TestSong.Name, isLoop = false, audLocation = AudioLocation.Clip });
-                playlist.MusicSettings.Add(setting);
+
                 sounds.musicPlaylists.Add(playlist);
             }
 

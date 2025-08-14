@@ -4,15 +4,16 @@ namespace TestVSMod.Models
 {
     public class SongData
     {
-        public SongData(AudioClip clip, string name)
+        public SongData(AudioClip clip, string name, bool loop = true)
         {
             Clip = clip;
             Name = name;
+            Loop = loop;
         }
 
         public AudioClip Clip { get; set; }
         public string Name { get; set; }
-        public float LoopStart { get; set; }
-        public float LoopEnd { get; set; }
+
+        public bool Loop { get; set; }
     }
 }

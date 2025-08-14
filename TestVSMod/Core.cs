@@ -1,20 +1,24 @@
-﻿using Il2CppVampireSurvivors.Data.Weapons;
-using Il2CppVampireSurvivors.Framework;
-using MelonLoader;
-using Il2Col = Il2CppSystem.Collections.Generic;
-using Il2CppVampireSurvivors.Data;
-using TestVSMod.Models;
+﻿using AudioImportLib;
 using HarmonyLib;
-using Il2CppNewtonsoft.Json;
 using Il2CppDarkTonic.MasterAudio;
-using static Il2CppDarkTonic.MasterAudio.MasterAudio;
-using Il2CppVampireSurvivors.Framework.Loading;
-using Il2CppVampireSurvivors.Framework.DLC.Types;
 using Il2CppInterop.Runtime.Runtime;
-using UnityEngine.AddressableAssets;
-using UnityEngine;
-using AudioImportLib;
+using Il2CppNewtonsoft.Json;
+using Il2CppVampireSurvivors.Data;
+using Il2CppVampireSurvivors.Data.Weapons;
+using Il2CppVampireSurvivors.Framework;
+using Il2CppVampireSurvivors.Framework.DLC.Types;
+using Il2CppVampireSurvivors.Framework.Loading;
+using Il2CppVampireSurvivors.Objects;
+using Il2CppVampireSurvivors.Objects.Weapons;
+using MelonLoader;
 using MelonLoader.Utils;
+using TestVSMod.Models;
+using TestVSMod.Patches;
+using UnityEngine;
+using UnityEngine.AddressableAssets;
+using static Il2CppDarkTonic.MasterAudio.MasterAudio;
+using static Il2CppVampireSurvivors.Objects.Characters.CharacterController_Support;
+using Il2Col = Il2CppSystem.Collections.Generic;
 
 [assembly: MelonInfo(typeof(TestVSMod.Core), "TestVSMod", "1.0.0", "warde", null)]
 [assembly: MelonGame("poncle", "Vampire Survivors")]
@@ -29,9 +33,8 @@ namespace TestVSMod
         public static Il2Col.Dictionary<WeaponType, Il2Col.List<WeaponData>> Il2CppModdedWeaponInfo;
         public static GameManager GameManager;
         public static string MusicJson;
-        public static IDictionary<int, SongData> Music;
+        public static IDictionary<int, SongData[]> Music;
         private const int SongIdStart = 1410;
-        public static SongData TestSong;
 
         public override void OnInitializeMelon()
         {
@@ -41,22 +44,42 @@ namespace TestVSMod
             Il2CppModdedWeaponInfo = new Il2Col.Dictionary<WeaponType, Il2Col.List<WeaponData>>();
             LoggerInstance.Msg("Created Il2CppModdedWeaponInfo.");
             HarmonyLib.Harmony harmony = HarmonyInstance;
-
+            var methods = WeaponPatches.Methods;
+            /*
+            var prefix = typeof(WeaponPatches).GetMethod(nameof(WeaponPatches.Prefix));
+            foreach (var method in methods)
+            {
+                if (method.Name == nameof(Weapon.HandlePlayerTeleport)) continue;
+                harmony.Patch(method, new HarmonyMethod(prefix));
+            }
+            */
             var ass = MelonAssembly.Assembly;
-            //LoadWeaponJson(ass);
-            LoadMusicJson(ass);
+            
+            LoadWeaponJson(ass);
+            LoadMusic(ass);
         }
 
-        private static void LoadMusicJson(System.Reflection.Assembly ass)
+        private static void LoadMusic(System.Reflection.Assembly ass)
         {
             var mdmj = ass.GetManifestResourceStream("TestVSMod.Data.musicData_Modded.json");
             var read2 = new StreamReader(mdmj);
             MusicJson = read2.ReadToEnd();
-            Music = new Dictionary<int, SongData>();
-            Music.Add(SongIdStart, new SongData(API.LoadAudioClip(MelonEnvironment.UserDataDirectory + "\\CustomAudio\\BGM_Pactronica2.wav", true), "PAC TRONICA"));
-            Music.Add(SongIdStart + 1, new SongData(API.LoadAudioClip(MelonEnvironment.UserDataDirectory + "\\CustomAudio\\BGM_PacMadness.mp3", true), "PAC MADNESS"));
-            Music.Add(SongIdStart + 2, new SongData(API.LoadAudioClip(MelonEnvironment.UserDataDirectory + "\\CustomAudio\\BGM_PacJumpUp.mp3", true), "PAC JUMP UP"));
-            TestSong = new SongData(API.LoadAudioClip(MelonEnvironment.UserDataDirectory + "\\CustomAudio\\BGM_Pactronica1.wav", true), "PAC TRONICApre");
+            Music = new Dictionary<int, SongData[]>();
+            int id = SongIdStart;
+            AddSong(id, "PAC TRONICA", ["BGM_Pactronica1.wav", "BGM_Pactronica2.wav"]); id++;
+            AddSong(id, "PAC MADNESS", ["BGM_Pacmadness1.wav", "BGM_Pacmadness2.wav"]); id++;
+            AddSong(id, "PAC TOY BOX", ["BGM_Pactoybox1.wav", "BGM_Pactoybox2.wav"]); id++;
+            AddSong(id, "PAC BABY", ["BGM_Pacbaby1.wav", "BGM_Pacbaby2.wav"]);
+        }
+
+        private static void AddSong(int id, string name, string[] paths)
+        {
+            var clips = new SongData[paths.Length];
+            for (var i = 0; i < paths.Length; i++)
+            {
+                clips[i] = new SongData(API.LoadAudioClip(MelonEnvironment.UserDataDirectory + "\\CustomAudio\\" + paths[i], true), name + i, (i != 0));
+            }
+            Music.Add(id, clips);
         }
 
         private static void LoadWeaponJson(System.Reflection.Assembly ass)

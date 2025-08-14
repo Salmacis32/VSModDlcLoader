@@ -502,10 +502,7 @@
 		<Compile Include="Models\WeaponInfo.cs" />
 		<Compile Include="Patches\GameManagerPatches.cs" />
 		<Compile Include="Patches\LocalizationManagerPatches.cs" />
-		<Compile Include="Patches\ManifestLoaderPatches.cs" />
-		<Compile Include="Patches\PlaylistPatches.cs" />
-		<Compile Include="Patches\WeaponFacadePatches.cs" />
-		<Compile Include="Patches\WeaponFactoryPatches.cs" />
+		<Compile Include="Patches\LoadingManagerPatches.cs" />
 		<Compile Include="Patches\WeaponPatches.cs" />
 		<Compile Include="Util\Il2CppDictionaryExtensions.cs" />
 		<Compile Include="Util\Il2CppEnumerableExtensions.cs" />

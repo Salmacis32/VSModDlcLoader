@@ -1,67 +1,58 @@
 ﻿using HarmonyLib;
-using Il2CppDarkTonic.MasterAudio;
-using Il2CppDoozy.Engine.Utils;
-using Il2CppInterop.Runtime.InteropTypes.Arrays;
 using Il2CppNewtonsoft.Json.Linq;
-using Il2CppSystem.IO;
+using Il2CppSystem.Reflection;
 using Il2CppVampireSurvivors.App.Data;
 using Il2CppVampireSurvivors.Data;
 using Il2CppVampireSurvivors.Data.Weapons;
 using Il2CppVampireSurvivors.Framework;
 using Il2CppVampireSurvivors.Framework.DLC;
-using Il2CppVampireSurvivors.Objects.Projectiles;
 using Il2CppVampireSurvivors.Objects.Weapons;
 using Il2CppZenject;
 using TestVSMod.Factories;
-using TestVSMod.Util;
-using Unity.Services.Core.Configuration;
 using UnityEngine;
-using UnityEngine.AddressableAssets;
-using UnityEngine.AddressableAssets.Initialization;
-using static Il2CppDarkTonic.MasterAudio.MasterAudio;
 using Il2Col = Il2CppSystem.Collections.Generic;
 
 namespace TestVSMod.Patches
 {
-    [HarmonyPatch(typeof(ManifestLoader))]
-    public static class ManifestLoaderPatches
+    [HarmonyPatch(typeof(LoadingManager))]
+    public static class LoadingManagerPatchesk
     {
-        private static Action<BundleManifestData> DlcLoaderLoadDlc = (bmd) =>
-        {
-            DlcLoader._manifest = bmd;
-            DlcLoader._manifestState = DlcLoadState.Complete;
-            DlcLoader.UpdateProgress();
-        };
+        public static bool ModLoaded;
 
-        [HarmonyPatch(nameof(ManifestLoader.LoadManifest))]
-        [HarmonyPrefix]
-        private static void AddManifest(BundleManifestData bundleManifestData, DlcType dlcType, Il2CppSystem.Action<BundleManifestData> onComplete)
+
+        [HarmonyPatch(nameof(LoadingManager.ValidateVersion))]
+        [HarmonyPostfix]
+        private static void AddManifest(object[] __args, MethodBase __originalMethod, object __instance)
         {
-            var test = bundleManifestData;
+            if (ModLoaded) return;
+            AddManifestPost();
+            ModLoaded = true;
         }
 
-        [HarmonyPatch(nameof(ManifestLoader.LoadManifest))]
-        [HarmonyPostfix]
-        private static void AddManifestPost(BundleManifestData bundleManifestData, DlcType dlcType, Il2CppSystem.Action<BundleManifestData> onComplete)
+        private static void AddManifestPost()
         {
-            if (dlcType != DlcType.Emeralds) return;
             DlcType modDlcType = (DlcType)10000;
-
-            var dataManager = ManifestLoader._sInstance._dataManager;
             var modDlcData = ScriptableObject.CreateInstance<BundleManifestData>();
             modDlcData._Version = "1.0.0"; modDlcData.name = "BundleManifestData - Modded"; modDlcData._DataFiles = new DataManagerSettings();
-            WeaponAdder(dataManager, modDlcData, modDlcType);
+            WeaponAdder(modDlcData, modDlcType);
             MusicAdder(modDlcData);
-            DlcSystem.MountedPaths.Add((DlcType)10000, "");
-            ManifestLoader.LoadManifest(modDlcData, modDlcType, onComplete);
+            DlcSystem.MountedPaths.Add(modDlcType, "");
+            DlcSystem.LoadedDlc.TryAdd(modDlcType, modDlcData);
+            Action<BundleManifestData> DlcLoaderLoadDlc = (bmd) =>
+            {
+                bmd = modDlcData;
+                DlcLoader._manifest = bmd;
+                DlcLoader._manifestState = DlcLoadState.Complete;
+                UnityEngine.Debug.Log("Loaded Modded Dlc");
+            };
+            ManifestLoader.ApplyBundleCore(modDlcType, modDlcData, DlcLoaderLoadDlc);
+            ManifestLoader.DoRuntimeReload();
         }
 
         private static AxeWeapon GetPrefab(Il2Col.KeyValuePair<WeaponType, Il2Col.List<WeaponData>> newWeapon)
         {
-            var container = ProjectContext._instance._container;
-            var comp = container.InstantiateComponentOnNewGameObject<AxeWeapon>();
+            var comp = ProjectContext.Instance.Container.InstantiateComponentOnNewGameObject<AxeWeapon>();
             comp.name = newWeapon.Value[0].name;
-            comp._ProjectilePrefab = ProjectContext._instance.Container.InstantiateComponentOnNewGameObject<AxeProjectile>();
             return comp;
         }
 
@@ -72,7 +63,7 @@ namespace TestVSMod.Patches
             manifestData._DynamicSoundGroup = DynamicSoundGroupFactory.DefaultModdedGroup();
         }
 
-        private static void WeaponAdder(Il2CppVampireSurvivors.Data.DataManager __instance, BundleManifestData modDlcData, DlcType dlcType)
+        private static void WeaponAdder(BundleManifestData modDlcData, DlcType dlcType)
         {
             if (Core.Il2CppModdedWeaponInfo == null || Core.Il2CppModdedWeaponInfo.Count == 0) return;
             modDlcData._WeaponFactory = ScriptableObject.CreateInstance<WeaponFactory>();
@@ -88,5 +79,6 @@ namespace TestVSMod.Patches
                 modDlcData.DataFiles._WeaponDataJsonAsset = textAsset;
             }
         }
+        
     }
 }
