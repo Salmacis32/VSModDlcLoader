@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace TestVSMod.Models
+namespace vsML.Models
 {
     public class SongData
     {

@@ -4,7 +4,7 @@ using Il2CppVampireSurvivors.Data;
 using Il2CppVampireSurvivors.Data.Weapons;
 using Il2Col = Il2CppSystem.Collections.Generic;
 
-namespace TestVSMod.Models
+namespace vsML.Models
 {
     public class WeaponInfo : Il2CppSystem.Object
     {

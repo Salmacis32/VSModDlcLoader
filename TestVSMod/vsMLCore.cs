@@ -6,18 +6,18 @@ using Il2CppVampireSurvivors.Data.Weapons;
 using Il2CppVampireSurvivors.Framework;
 using MelonLoader;
 using MelonLoader.Utils;
-using TestVSMod.Models;
-using TestVSMod.Patches;
+using vsML.Models;
+using vsML.Patches;
 using Il2Col = Il2CppSystem.Collections.Generic;
 
-[assembly: MelonInfo(typeof(TestVSMod.Core), "TestVSMod", "1.0.0", "warde", null)]
+[assembly: MelonInfo(typeof(vsML.vsMLCore), "Masquerade of Limerence", "1.0.0", "Mercy", null)]
 [assembly: MelonGame("poncle", "Vampire Survivors")]
 [assembly: MelonAdditionalDependencies("AudioImportLib")]
 
-namespace TestVSMod
+namespace vsML
 {
 
-    public class Core : MelonMod
+    public class vsMLCore : MelonMod
     {
         public static IEnumerable<WeaponInfo> ModdedWeaponInfo;
         public static Il2Col.Dictionary<WeaponType, Il2Col.List<WeaponData>> Il2CppModdedWeaponInfo;

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine.UIElements;
 
-namespace TestVSMod.Util
+namespace vsML.Util
 {
     public static class StreamExtensions
     {

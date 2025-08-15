@@ -2,9 +2,9 @@
 using Il2CppVampireSurvivors.Data;
 using Il2CppVampireSurvivors.Framework;
 using Il2CppVampireSurvivors.Objects.Projectiles;
-using TestVSMod.Models;
+using vsML.Models;
 
-namespace TestVSMod.Patches
+namespace vsML.Patches
 {
     [HarmonyPatch(typeof(GameManager))]
     public static class GameManagerPatches
@@ -24,7 +24,7 @@ namespace TestVSMod.Patches
         {
             if (WeaponFactory == null) WeaponFactory = __instance.WeaponsFacade._weaponFactory;
             if (Prefab == null) Prefab = __instance.ProjectileFactory.GetProjectilePrefab(WeaponType.AXE);
-            foreach (var item in Core.ModdedWeaponInfo) {
+            foreach (var item in vsMLCore.ModdedWeaponInfo) {
                 WeaponFactory.GetWeaponPrefab(item.IdAsType, out WeaponType dead)._ProjectilePrefab = Prefab;
             }
             if (ProjectilePatches.ModPool == null) ProjectilePatches.ModPool = new ModProjectile[50, 500];

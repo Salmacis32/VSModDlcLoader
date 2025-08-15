@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TestVSMod.Util
+namespace vsML.Util
 {
     public static class SafeAccess
     {

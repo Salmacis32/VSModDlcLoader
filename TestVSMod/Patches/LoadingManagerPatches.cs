@@ -8,11 +8,11 @@ using Il2CppVampireSurvivors.Framework;
 using Il2CppVampireSurvivors.Framework.DLC;
 using Il2CppVampireSurvivors.Objects.Weapons;
 using Il2CppZenject;
-using TestVSMod.Factories;
+using vsML.Factories;
 using UnityEngine;
 using Il2Col = Il2CppSystem.Collections.Generic;
 
-namespace TestVSMod.Patches
+namespace vsML.Patches
 {
     [HarmonyPatch(typeof(LoadingManager))]
     public static class LoadingManagerPatchesk
@@ -57,23 +57,23 @@ namespace TestVSMod.Patches
 
         private static void MusicAdder(BundleManifestData manifestData)
         {
-            TextAsset textAsset = new TextAsset(Core.MusicJson);
+            TextAsset textAsset = new TextAsset(vsMLCore.MusicJson);
             manifestData.DataFiles._MusicDataJsonAsset = textAsset;
             manifestData._DynamicSoundGroup = DynamicSoundGroupFactory.DefaultModdedGroup();
         }
 
         private static void WeaponAdder(BundleManifestData modDlcData, DlcType dlcType)
         {
-            if (Core.Il2CppModdedWeaponInfo == null || Core.Il2CppModdedWeaponInfo.Count == 0) return;
+            if (vsMLCore.Il2CppModdedWeaponInfo == null || vsMLCore.Il2CppModdedWeaponInfo.Count == 0) return;
             modDlcData._WeaponFactory = ScriptableObject.CreateInstance<WeaponFactory>();
-            foreach (var newWeapon in Core.Il2CppModdedWeaponInfo)
+            foreach (var newWeapon in vsMLCore.Il2CppModdedWeaponInfo)
             {
                 Weapon comp = GetPrefab(newWeapon);
                 modDlcData._WeaponFactory._weapons.Add(newWeapon.Key, comp);
             }
             if (modDlcData.DataFiles != null)
             {
-                JObject dlc = JObject.FromObject(Core.Il2CppModdedWeaponInfo);
+                JObject dlc = JObject.FromObject(vsMLCore.Il2CppModdedWeaponInfo);
                 TextAsset textAsset = new TextAsset(dlc.ToString());
                 modDlcData.DataFiles._WeaponDataJsonAsset = textAsset;
             }

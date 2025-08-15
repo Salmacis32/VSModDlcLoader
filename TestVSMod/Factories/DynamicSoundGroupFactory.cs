@@ -3,7 +3,7 @@ using Il2CppZenject;
 using static Il2CppDarkTonic.MasterAudio.MasterAudio;
 using Il2Col = Il2CppSystem.Collections.Generic;
 
-namespace TestVSMod.Factories
+namespace vsML.Factories
 {
     public class DynamicSoundGroupFactory
     {
@@ -15,7 +15,7 @@ namespace TestVSMod.Factories
             sounds.customEventsToCreate = new Il2Col.List<CustomEvent>();
             sounds.customEventCategories = new Il2Col.List<CustomEventCategory>();
             sounds.customEventCategories.Add(new CustomEventCategory() { CatName = "Loops" });
-            foreach (var song in Core.Music)
+            foreach (var song in vsMLCore.Music)
             {
                 Playlist playlist = new Playlist() { playlistName = song.Key.ToString() };
                 foreach (var clip in song.Value)

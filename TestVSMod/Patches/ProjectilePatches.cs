@@ -5,11 +5,11 @@ using Il2CppVampireSurvivors.Objects.Weapons;
 using MelonLoader;
 using System.Reflection;
 using System.Text;
-using TestVSMod.Models;
-using TestVSMod.Models.Projectiles;
-using TestVSMod.Util;
+using vsML.Models;
+using vsML.Models.Projectiles;
+using vsML.Util;
 
-namespace TestVSMod.Patches
+namespace vsML.Patches
 {
     public static class ProjectilePatches
     {
@@ -48,7 +48,7 @@ namespace TestVSMod.Patches
         {
             if (ModWeaponType[(int)weapon.Type] == 0)
             {
-                if (!Core.ModdedWeaponInfo.Any(x => x.IdAsType.Equals(weapon.Type))) ModWeaponType[(int)weapon.Type] = 1;
+                if (!vsMLCore.ModdedWeaponInfo.Any(x => x.IdAsType.Equals(weapon.Type))) ModWeaponType[(int)weapon.Type] = 1;
                 else ModWeaponType[(int)weapon.Type] = 2;
             }
             if (ModWeaponType[(int)weapon.Type] < 2) return true;

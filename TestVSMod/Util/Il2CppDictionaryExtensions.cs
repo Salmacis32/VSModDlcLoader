@@ -2,7 +2,7 @@
 using Il2Col = Il2CppSystem.Collections.Generic;
 using System.Linq;
 
-namespace TestVSMod.Util
+namespace vsML.Util
 {
     /// <summary>
     /// Extensions for il2cpp dictionaries

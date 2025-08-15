@@ -3,7 +3,7 @@ using Il2CppSystem.Linq;
 using System.Linq;
 using Il2Col = Il2CppSystem.Collections.Generic;
 
-namespace TestVSMod.Util
+namespace vsML.Util
 {
     public static class Il2CppEnumerableExtensions
     {

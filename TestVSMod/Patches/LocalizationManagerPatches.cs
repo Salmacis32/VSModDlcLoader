@@ -2,7 +2,7 @@
 using Il2CppI2.Loc;
 using System.Text;
 
-namespace TestVSMod.Patches
+namespace vsML.Patches
 {
     [HarmonyPatch(typeof(LocalizationManager))]
     public static class LocalizationManagerPatches
@@ -20,7 +20,7 @@ namespace TestVSMod.Patches
         {
             if (LocalizationManager.Sources.Count == 0) return;
             if (Source == null) Source = LocalizationManager.GetSourceContaining("weaponLang/{HELLFIRE}name");
-            foreach (var weapon in Core.ModdedWeaponInfo)
+            foreach (var weapon in vsMLCore.ModdedWeaponInfo)
             {
                 StringBuilder sb = new StringBuilder("weaponLang/{");
                 sb.Append(weapon.WeaponId); sb.Append("}name");

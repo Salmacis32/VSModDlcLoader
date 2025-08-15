@@ -4,10 +4,10 @@ using Il2CppVampireSurvivors.Framework;
 using Il2CppVampireSurvivors.Objects.Pools;
 using Il2CppVampireSurvivors.Objects.Projectiles;
 using Il2CppVampireSurvivors.Objects.Weapons;
-using TestVSMod.Util;
+using vsML.Util;
 using UnityEngine;
 
-namespace TestVSMod.Models.Projectiles
+namespace vsML.Models.Projectiles
 {
     public class ModKnifeProjectile : ModProjectile
     {

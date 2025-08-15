@@ -1,4 +1,4 @@
-﻿namespace TestVSMod
+﻿namespace vsML
 {
     public static class Constants
     {

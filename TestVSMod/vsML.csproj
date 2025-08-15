@@ -3,13 +3,13 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>disable</Nullable>
-		<RootNamespace>TestVSMod</RootNamespace>
+		<RootNamespace>vsML</RootNamespace>
 		<LangVersion>default</LangVersion>
 		<IsPackable>false</IsPackable>
 		<AssemblyVersion>1.0.0.0</AssemblyVersion>
 		<FileVersion>1.0.0.0</FileVersion>
 		<NeutralLanguage>en-US</NeutralLanguage>
-		<AssemblyName>TestVSMod</AssemblyName>
+		<AssemblyName>vsML</AssemblyName>
 		<LangVersion>latest</LangVersion>
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
@@ -497,7 +497,7 @@
 
 	<ItemGroup>
 		<Compile Include="Constants.cs" />
-		<Compile Include="Core.cs" />
+		<Compile Include="vsMLCore.cs" />
 		<Compile Include="Factories\DynamicSoundGroupFactory.cs" />
 		<Compile Include="Models\ModProjectile.cs" />
 		<Compile Include="Models\Projectiles\ModKnifeProjectile.cs" />

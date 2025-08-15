@@ -1,6 +1,6 @@
 ﻿using Il2Col = Il2CppSystem.Collections.Generic;
 using Il2CppInterop.Runtime.InteropTypes.Arrays;
-namespace TestVSMod.Util
+namespace vsML.Util
 {
 
     /// <summary>
