@@ -6,7 +6,10 @@ using Il2Col = Il2CppSystem.Collections.Generic;
 
 namespace vsML.Models
 {
-    public class WeaponInfo : Il2CppSystem.Object
+    /// <summary>
+    /// Class used to contain weapon data for custom weapons
+    /// </summary>
+    public class WeaponInfo
     {
         public int WeaponId;
         public IEnumerable<WeaponData> LeveledWeaponData { get; set; }

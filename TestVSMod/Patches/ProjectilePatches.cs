@@ -4,32 +4,96 @@ using Il2CppVampireSurvivors.Objects.Projectiles;
 using Il2CppVampireSurvivors.Objects.Weapons;
 using MelonLoader;
 using System.Reflection;
-using System.Text;
 using vsML.Models;
 using vsML.Models.Projectiles;
 using vsML.Util;
 
 namespace vsML.Patches
 {
+    /// <summary>
+    /// Harmony patches for the Projectile class
+    /// </summary>
     public static class ProjectilePatches
     {
+        /// <summary>
+        /// The methods to be patched
+        /// </summary>
         public static MethodInfo[] Methods;
-        public static byte[] ModWeaponType;
-        public static ModProjectile[,] ModPool;
-        public static StringBuilder StringBuilder;
 
-        public static void Initialize()
-        {
-            Methods = TargetMethods();
-            ModWeaponType = new byte[2600];
-            StringBuilder = new StringBuilder();
-        }
+        /// <summary>
+        /// Managed array to hold all of the ModProjectile instances created, sorted by their WeaponType starting from when custom content starts.
+        /// Second dimension represents their given IndexInWeapon.
+        /// </summary>
+        /// <remarks>
+        /// This could definitely be done better. Pooling is the way to go, but type actually needs pooled needs figured out.
+        /// </remarks>
+        public static ModProjectile[,] ModPool;
+
+        /// <summary>
+        /// An array corresponding to every WeaponType both vanilla and custom.
+        /// Holds whether or not a given WeaponType is custom in addition to whether its already been checked.
+        /// </summary>
+        public static byte[] ModWeaponType;
 
         public static void Deinitialize()
         {
             Methods = null;
             ModWeaponType = null;
-            StringBuilder = null;
+        }
+
+        /// <summary>
+        /// Injected method to destroy the ModProjectile corresponding to the projectile being despawned
+        /// </summary>
+        public static void DespawnPrefix(Projectile __instance)
+        {
+            if (!SafeProjectileHasParent(__instance, out Weapon weapon)) return;
+            if (!IsProjectileModded(weapon)) return;
+            ModPool[ModProjectileIdFromWeaponType(weapon), __instance.IndexInWeapon] = null;
+        }
+
+        public static void Initialize()
+        {
+            Methods = TargetMethods();
+            ModWeaponType = new byte[3000];
+        }
+
+        /// <summary>
+        /// Injected method to handle the Projectile.InitProjectile function.
+        /// </summary>
+        /// <returns>True to skip mod behavior. False to skip vanilla behavior.</returns>
+        public static bool InitPrefix(Projectile __instance, Weapon weapon, BulletPool pool, int index)
+        {
+            AssignAndCheckModdedStatus(weapon);
+            if (!IsProjectileModded(weapon)) return true;
+
+            var modIndex = ModProjectileIdFromWeaponType(weapon);
+            var modWeapon = ModPool[modIndex, index];
+            if (modWeapon == null) modWeapon = new ModKnifeProjectile();
+
+            try
+            {
+                modWeapon.InitProjectile(ref __instance, pool, weapon, index);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                MelonLogger.Error(ex.Message);
+                return true;
+            }
+            finally
+            {
+                ModPool[modIndex, index] = modWeapon;
+            }
+        }
+
+        /// <summary>
+        /// Placeholder injected method to stop AxeProjectile from firing its InternalUpdate.
+        /// </summary>
+        public static bool InternalUpdatePrefix(AxeProjectile __instance)
+        {
+            if (!SafeProjectileHasParent(__instance, out Weapon weapon)) return true;
+            if (!IsProjectileModded(weapon)) return true;
+            return false;
         }
 
         public static MethodInfo[] TargetMethods()
@@ -44,61 +108,28 @@ namespace vsML.Patches
             return arr;
         }
 
-        public static bool InitPrefix(Projectile __instance, Weapon weapon, BulletPool pool, int index, MethodBase __originalMethod)
+        /// <summary>
+        /// Assign weapon a 1 or a 2 and stores that.
+        /// 1 represents a vanilla weapon. 2 represents a modded one.
+        /// </summary>
+        private static void AssignAndCheckModdedStatus(Weapon weapon)
         {
-            if (ModWeaponType[(int)weapon.Type] == 0)
-            {
-                if (!vsMLCore.ModdedWeaponInfo.Any(x => x.IdAsType.Equals(weapon.Type))) ModWeaponType[(int)weapon.Type] = 1;
-                else ModWeaponType[(int)weapon.Type] = 2;
-            }
-            if (ModWeaponType[(int)weapon.Type] < 2) return true;
-            var modIndex = (int)weapon.Type - Constants.WEAPON_START_ID;
-            var modWeapon = ModPool[modIndex, index];
-            if (modWeapon == null) modWeapon = new ModKnifeProjectile();
-            
-            try
-            {
-                /* temp logging
-                StringBuilder.AppendFormat(Constants.INITPROJECTILE_1 + (int)weapon.Type + Constants.INITPROJECTILE_3 + index);
-                MelonLogger.MsgPastel(StringBuilder.ToString());
-                StringBuilder.Clear();
-                */
-                modWeapon.InitProjectile(ref __instance, pool, weapon, index);
-                /*
-                StringBuilder.AppendFormat(Constants.INITPROJECTILE_2 + (int)weapon.Type + Constants.INITPROJECTILE_3 + index);
-                MelonLogger.MsgPastel(StringBuilder.ToString());
-                StringBuilder.Clear();
-                */
-                return false;
-            }
-            catch (Exception ex)
-            {
-                MelonLogger.Error(ex.Message);
-                return true;
-            }
-            finally
-            {
-                ModPool[modIndex, index] = modWeapon;
-            }
+            if (ModWeaponType[(int)weapon.Type] != 0) return;
+
+            if (!vsMLCore.CustomWeapons.Any(x => x.IdAsType.Equals(weapon.Type))) ModWeaponType[(int)weapon.Type] = 1;
+            else ModWeaponType[(int)weapon.Type] = 2;
         }
 
-        public static void DespawnPrefix(Projectile __instance)
-        {
-            if (ModPool == null) return;
-            var safeWeapon = SafeAccess.GetProperty<Weapon>(__instance, nameof(__instance.Weapon));
-            if (safeWeapon == null) return;
-            if (ModWeaponType[(int)__instance._weapon.Type] < 2) return;
-            var modIndex = (int)__instance._weapon.Type - Constants.WEAPON_START_ID;
-            ModPool[modIndex, __instance.IndexInWeapon] = null;
-        }
+        private static bool IsProjectileModded(Weapon parent) => ModWeaponType[(int)parent.Type] >= 2;
 
-        public static bool InternalUpdatePrefix(AxeProjectile __instance)
+        private static int ModProjectileIdFromWeaponType(Weapon projectileParent) => (int)projectileParent.Type - Constants.WEAPON_START_ID;
+
+        private static bool SafeProjectileHasParent(Projectile __instance, out Weapon weapon)
         {
-            if (ModPool == null) return true;
-            var safeWeapon = SafeAccess.GetProperty<Weapon>(__instance, nameof(__instance.Weapon));
-            if (safeWeapon == null) return true;
-            if (ModWeaponType[(int)__instance._weapon.Type] < 2) return true;
-            return false;
+            weapon = null;
+            if (ModPool == null) return false;
+            weapon = SafeAccess.GetProperty<Weapon>(__instance, nameof(__instance.Weapon));
+            return (weapon != null);
         }
     }
 }

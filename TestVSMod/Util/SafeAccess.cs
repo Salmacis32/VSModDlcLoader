@@ -1,12 +1,13 @@
 ﻿using MelonLoader;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace vsML.Util
 {
+    /// <summary>
+    /// Static methods for safely getting properties from Il2Cpp classes.
+    /// </summary>
+    /// <remarks>
+    /// Credit to whendeh for creating these
+    /// </remarks>
     public static class SafeAccess
     {
         public static T GetProperty<T>(object il2cppObject, string propertyName, T defaultValue = default(T))

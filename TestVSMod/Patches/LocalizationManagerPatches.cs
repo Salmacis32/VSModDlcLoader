@@ -4,6 +4,9 @@ using System.Text;
 
 namespace vsML.Patches
 {
+    /// <summary>
+    /// Harmony patches for the LocalizationManager class
+    /// </summary>
     [HarmonyPatch(typeof(LocalizationManager))]
     public static class LocalizationManagerPatches
     {
@@ -14,13 +17,20 @@ namespace vsML.Patches
             Source = null;
         }
         
+        /// <summary>
+        /// Updates the localization source with modded weapon text.
+        /// </summary>
+        /// <remarks>
+        /// I'm not sure if this is the best place to do this, but it works for now.
+        /// LanguageSourceData needs more investigation so that this can possibly be better.
+        /// </remarks>
         [HarmonyPatch(nameof(LocalizationManager.UpdateSources))]
         [HarmonyPostfix]
         public static void GetTransPost()
         {
             if (LocalizationManager.Sources.Count == 0) return;
             if (Source == null) Source = LocalizationManager.GetSourceContaining("weaponLang/{HELLFIRE}name");
-            foreach (var weapon in vsMLCore.ModdedWeaponInfo)
+            foreach (var weapon in vsMLCore.CustomWeapons)
             {
                 StringBuilder sb = new StringBuilder("weaponLang/{");
                 sb.Append(weapon.WeaponId); sb.Append("}name");

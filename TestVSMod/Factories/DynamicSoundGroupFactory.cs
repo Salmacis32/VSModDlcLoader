@@ -5,17 +5,23 @@ using Il2Col = Il2CppSystem.Collections.Generic;
 
 namespace vsML.Factories
 {
+    /// <summary>
+    /// Placeholder class for creating DynamicSoundGroup objects that store audio data for asset bundles.
+    /// </summary>
+    /// <remarks>
+    /// Calling this a "Factory" is a bit of a misnomer. This will need updated to be more extensible.
+    /// </remarks>
     public class DynamicSoundGroupFactory
     {
+        /// <summary>
+        /// Creates the base DynamicSoundGroup for the modloader.
+        /// </summary>
         public static DynamicSoundGroupCreator DefaultModdedGroup()
         {
             if (ProjectContext._instance == null) return null;
             var sounds = ProjectContext._instance._container.InstantiateComponentOnNewGameObject<DynamicSoundGroupCreator>();
             sounds.musicPlaylists = new Il2Col.List<Playlist>();
-            sounds.customEventsToCreate = new Il2Col.List<CustomEvent>();
-            sounds.customEventCategories = new Il2Col.List<CustomEventCategory>();
-            sounds.customEventCategories.Add(new CustomEventCategory() { CatName = "Loops" });
-            foreach (var song in vsMLCore.Music)
+            foreach (var song in vsMLCore.CustomMusic)
             {
                 Playlist playlist = new Playlist() { playlistName = song.Key.ToString() };
                 foreach (var clip in song.Value)

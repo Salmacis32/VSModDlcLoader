@@ -9,11 +9,21 @@ using UnityEngine;
 
 namespace vsML.Models.Projectiles
 {
+    /// <summary>
+    /// My interpretation of the KnifeProjectile code.
+    /// </summary>
     public class ModKnifeProjectile : ModProjectile
     {
         public static Il2CppSystem.Nullable<float> Volume;
         public Il2CppSystem.Nullable<float> Empty;
 
+        /// <summary>
+        /// As close to a one-to-one recreation of the KnifeProjectile InitProjectile method as I could manage.
+        /// </summary>
+        /// <param name="proj">Projectile instance that's being hooked</param>
+        /// <param name="pool">Hooked method argument</param>
+        /// <param name="weapon">Hooked method argument</param>
+        /// <param name="index">Hooked method argument</param>
         public override void InitProjectile(ref Projectile proj, BulletPool pool, Weapon weapon, int index)
         {
             base.InitProjectile(ref proj, pool, weapon, index);
@@ -49,6 +59,6 @@ namespace vsML.Models.Projectiles
             var mod = proj._weapon.CritIndex % weapon.CritChancesArray._size;
 
             if (0.5f <= weapon.CritChancesArray[mod + 1]) proj._bounces = weapon.PBounces();
-        } // 0x00000001838BA260-0x00000001838BA8A0 // 0x00000001838BA960-0x00000001838BAA50
+        }
     }
 }

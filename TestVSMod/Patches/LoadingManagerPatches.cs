@@ -11,12 +11,21 @@ using Il2CppZenject;
 using vsML.Factories;
 using UnityEngine;
 using Il2Col = Il2CppSystem.Collections.Generic;
+using MelonLoader;
+using System.Text;
 
 namespace vsML.Patches
 {
+    /// <summary>
+    /// Patches for the LoadingManager class. Creates all of the data into the DLC asset bundle and loads the manifest into the game.
+    /// </summary>
     [HarmonyPatch(typeof(LoadingManager))]
-    public static class LoadingManagerPatchesk
+    public static class LoadingManagerPatches
     {
+        private const string BMD_NAME = "BundleManifestData - Masquerade";
+        private const string BMD_VERSION = "1.0.0";
+        private const string BMD_LOG = "Masquerade of Limerance - Version ";
+        private const DlcType VSML_DLC_TYPE = (DlcType)10000;
         public static bool ModLoaded;
 
         [HarmonyPatch(nameof(LoadingManager.ValidateVersion))]
@@ -28,27 +37,42 @@ namespace vsML.Patches
             ModLoaded = true;
         }
 
+        /// <summary>
+        /// Main method that creates the BundleManifestData and loads in all the custom assets, then applies it to the game's loaded data.
+        /// </summary>
         private static void AddManifestPost()
         {
-            DlcType modDlcType = (DlcType)10000;
+            MelonLogger.Msg("Loading mod DLC assets");
+
             var modDlcData = ScriptableObject.CreateInstance<BundleManifestData>();
-            modDlcData._Version = "1.0.0"; modDlcData.name = "BundleManifestData - Modded"; modDlcData._DataFiles = new DataManagerSettings();
-            WeaponAdder(modDlcData, modDlcType);
+            modDlcData._Version = BMD_VERSION; modDlcData.name = BMD_NAME; modDlcData._DataFiles = new DataManagerSettings();
+
+            MelonLogger.Msg("Loading custom weapon assets");
+            WeaponAdder(modDlcData, VSML_DLC_TYPE);
+            MelonLogger.Msg("Custom weapon assets loaded!");
+
+            MelonLogger.Msg("Loading custom music assets");
             MusicAdder(modDlcData);
-            DlcSystem.MountedPaths.Add(modDlcType, "");
-            DlcSystem.LoadedDlc.TryAdd(modDlcType, modDlcData);
+            MelonLogger.Msg("Custom music assets loaded!");
+
+            MelonLogger.Msg("Applying Bundle to Game");
+            DlcSystem.MountedPaths.Add(VSML_DLC_TYPE, String.Empty);
+            DlcSystem.LoadedDlc.TryAdd(VSML_DLC_TYPE, modDlcData);
             Action<BundleManifestData> DlcLoaderLoadDlc = (bmd) =>
             {
                 bmd = modDlcData;
                 DlcLoader._manifest = bmd;
                 DlcLoader._manifestState = DlcLoadState.Complete;
-                UnityEngine.Debug.Log("Loaded Modded Dlc");
+                UnityEngine.Debug.Log(BMD_LOG + BMD_VERSION);
             };
-            ManifestLoader.ApplyBundleCore(modDlcType, modDlcData, DlcLoaderLoadDlc);
+            ManifestLoader.ApplyBundleCore(VSML_DLC_TYPE, modDlcData, DlcLoaderLoadDlc);
             ManifestLoader.DoRuntimeReload();
+            MelonLogger.Msg("Bundle successfully applied!");
+
+            MelonLogger.Msg("Mod DLC assets successfully loaded!");
         }
 
-        private static Weapon GetPrefab(Il2Col.KeyValuePair<WeaponType, Il2Col.List<WeaponData>> newWeapon)
+        private static Weapon GetWeaponPrefab(Il2Col.KeyValuePair<WeaponType, Il2Col.List<WeaponData>> newWeapon)
         {
             var comp = ProjectContext.Instance.Container.InstantiateComponentOnNewGameObject<Weapon>();
             comp.name = newWeapon.Value[0].name;
@@ -64,16 +88,17 @@ namespace vsML.Patches
 
         private static void WeaponAdder(BundleManifestData modDlcData, DlcType dlcType)
         {
-            if (vsMLCore.Il2CppModdedWeaponInfo == null || vsMLCore.Il2CppModdedWeaponInfo.Count == 0) return;
+            // TODO: Turn this into a function off of the list of weapon information rather than having two seperate lists.
+            if (vsMLCore.Il2CppCustomWeapons == null || vsMLCore.Il2CppCustomWeapons.Count == 0) return;
             modDlcData._WeaponFactory = ScriptableObject.CreateInstance<WeaponFactory>();
-            foreach (var newWeapon in vsMLCore.Il2CppModdedWeaponInfo)
+            foreach (var newWeapon in vsMLCore.Il2CppCustomWeapons)
             {
-                Weapon comp = GetPrefab(newWeapon);
+                Weapon comp = GetWeaponPrefab(newWeapon);
                 modDlcData._WeaponFactory._weapons.Add(newWeapon.Key, comp);
             }
             if (modDlcData.DataFiles != null)
             {
-                JObject dlc = JObject.FromObject(vsMLCore.Il2CppModdedWeaponInfo);
+                JObject dlc = JObject.FromObject(vsMLCore.Il2CppCustomWeapons);
                 TextAsset textAsset = new TextAsset(dlc.ToString());
                 modDlcData.DataFiles._WeaponDataJsonAsset = textAsset;
             }
