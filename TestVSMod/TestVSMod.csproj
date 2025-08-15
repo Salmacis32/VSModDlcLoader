@@ -496,17 +496,21 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Compile Include="Constants.cs" />
 		<Compile Include="Core.cs" />
 		<Compile Include="Factories\DynamicSoundGroupFactory.cs" />
+		<Compile Include="Models\ModProjectile.cs" />
+		<Compile Include="Models\Projectiles\ModKnifeProjectile.cs" />
 		<Compile Include="Models\SongData.cs" />
 		<Compile Include="Models\WeaponInfo.cs" />
 		<Compile Include="Patches\GameManagerPatches.cs" />
 		<Compile Include="Patches\LocalizationManagerPatches.cs" />
 		<Compile Include="Patches\LoadingManagerPatches.cs" />
-		<Compile Include="Patches\WeaponPatches.cs" />
+		<Compile Include="Patches\ProjectilePatches.cs" />
 		<Compile Include="Util\Il2CppDictionaryExtensions.cs" />
 		<Compile Include="Util\Il2CppEnumerableExtensions.cs" />
 		<Compile Include="Util\Il2CppListExtensions.cs" />
+		<Compile Include="Util\SafeAccess.cs" />
 		<Compile Include="Util\StreamExtensions.cs" />
 	</ItemGroup>
 

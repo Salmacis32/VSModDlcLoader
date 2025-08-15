@@ -8,6 +8,11 @@ namespace TestVSMod.Patches
     public static class LocalizationManagerPatches
     {
         public static LanguageSourceData Source;
+
+        public static void Deinitialize()
+        {
+            Source = null;
+        }
         
         [HarmonyPatch(nameof(LocalizationManager.UpdateSources))]
         [HarmonyPostfix]

@@ -1,17 +1,8 @@
 ﻿using HarmonyLib;
-using Il2CppNewtonsoft.Json.Linq;
-using Il2CppSystem.Reflection;
-using Il2CppVampireSurvivors.App.Data;
 using Il2CppVampireSurvivors.Data;
-using Il2CppVampireSurvivors.Data.Weapons;
 using Il2CppVampireSurvivors.Framework;
-using Il2CppVampireSurvivors.Framework.DLC;
 using Il2CppVampireSurvivors.Objects.Projectiles;
-using Il2CppVampireSurvivors.Objects.Weapons;
-using Il2CppZenject;
-using TestVSMod.Factories;
-using UnityEngine;
-using Il2Col = Il2CppSystem.Collections.Generic;
+using TestVSMod.Models;
 
 namespace TestVSMod.Patches
 {
@@ -20,6 +11,13 @@ namespace TestVSMod.Patches
     {
         public static WeaponFactory WeaponFactory;
         public static Projectile Prefab;
+
+        public static void Deinitialize()
+        {
+            WeaponFactory = null;
+            Prefab = null;
+        }
+
         [HarmonyPatch(nameof(GameManager.InitializeGameSessionPostLoad))]
         [HarmonyPostfix]
         public static void Load(GameManager __instance)
@@ -29,6 +27,16 @@ namespace TestVSMod.Patches
             foreach (var item in Core.ModdedWeaponInfo) {
                 WeaponFactory.GetWeaponPrefab(item.IdAsType, out WeaponType dead)._ProjectilePrefab = Prefab;
             }
+            if (ProjectilePatches.ModPool == null) ProjectilePatches.ModPool = new ModProjectile[50, 500];
+        }
+
+        [HarmonyPatch(nameof(GameManager.ResetGameSession))]
+        [HarmonyPrefix]
+        public static void ResetGameSession(GameManager __instance)
+        {
+            Array.Clear(ProjectilePatches.ModPool);
+            Prefab = null;
+            WeaponFactory = null;
         }
     }
 }

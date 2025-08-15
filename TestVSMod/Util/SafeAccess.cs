@@ -1,0 +1,49 @@
+﻿using MelonLoader;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TestVSMod.Util
+{
+    public static class SafeAccess
+    {
+        public static T GetProperty<T>(object il2cppObject, string propertyName, T defaultValue = default(T))
+        {
+            try
+            {
+                if (il2cppObject == null) return defaultValue;
+
+                var property = il2cppObject.GetType().GetProperty(propertyName);
+                if (property == null) return defaultValue;
+
+                var value = property.GetValue(il2cppObject);
+                return value is T typedValue ? typedValue : defaultValue;
+            }
+            catch (Exception ex)
+            {
+                MelonLogger.Warning($"Attempted to access property {propertyName}: {ex.Message}");
+                return defaultValue;
+            }
+        }
+
+        public static void SetProperty<T>(object il2cppObject, string propertyName, T value)
+        {
+            try
+            {
+                if (il2cppObject == null) return;
+
+                var property = il2cppObject.GetType().GetProperty(propertyName);
+                if (property?.CanWrite == true)
+                {
+                    property.SetValue(il2cppObject, value);
+                }
+            }
+            catch (Exception ex)
+            {
+                MelonLogger.Error($"Error setting property {propertyName}: {ex.Message}");
+            }
+        }
+    }
+}

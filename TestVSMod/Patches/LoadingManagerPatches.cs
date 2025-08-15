@@ -19,7 +19,6 @@ namespace TestVSMod.Patches
     {
         public static bool ModLoaded;
 
-
         [HarmonyPatch(nameof(LoadingManager.ValidateVersion))]
         [HarmonyPostfix]
         private static void AddManifest(object[] __args, MethodBase __originalMethod, object __instance)
@@ -49,9 +48,9 @@ namespace TestVSMod.Patches
             ManifestLoader.DoRuntimeReload();
         }
 
-        private static AxeWeapon GetPrefab(Il2Col.KeyValuePair<WeaponType, Il2Col.List<WeaponData>> newWeapon)
+        private static Weapon GetPrefab(Il2Col.KeyValuePair<WeaponType, Il2Col.List<WeaponData>> newWeapon)
         {
-            var comp = ProjectContext.Instance.Container.InstantiateComponentOnNewGameObject<AxeWeapon>();
+            var comp = ProjectContext.Instance.Container.InstantiateComponentOnNewGameObject<Weapon>();
             comp.name = newWeapon.Value[0].name;
             return comp;
         }
@@ -69,7 +68,7 @@ namespace TestVSMod.Patches
             modDlcData._WeaponFactory = ScriptableObject.CreateInstance<WeaponFactory>();
             foreach (var newWeapon in Core.Il2CppModdedWeaponInfo)
             {
-                AxeWeapon comp = GetPrefab(newWeapon);
+                Weapon comp = GetPrefab(newWeapon);
                 modDlcData._WeaponFactory._weapons.Add(newWeapon.Key, comp);
             }
             if (modDlcData.DataFiles != null)

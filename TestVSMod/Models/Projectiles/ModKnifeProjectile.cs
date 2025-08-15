@@ -1,0 +1,54 @@
+﻿using Il2CppVampireSurvivors.Data;
+using Il2CppVampireSurvivors.Data.Weapons;
+using Il2CppVampireSurvivors.Framework;
+using Il2CppVampireSurvivors.Objects.Pools;
+using Il2CppVampireSurvivors.Objects.Projectiles;
+using Il2CppVampireSurvivors.Objects.Weapons;
+using TestVSMod.Util;
+using UnityEngine;
+
+namespace TestVSMod.Models.Projectiles
+{
+    public class ModKnifeProjectile : ModProjectile
+    {
+        public static Il2CppSystem.Nullable<float> Volume;
+        public Il2CppSystem.Nullable<float> Empty;
+
+        public override void InitProjectile(ref Projectile proj, BulletPool pool, Weapon weapon, int index)
+        {
+            base.InitProjectile(ref proj, pool, weapon, index);
+            if (Empty == null) Empty = new Il2CppSystem.Nullable<float>();
+            proj.body.setCircle(radius: 8.0f, offsetX: Empty, offsetY: Empty, worldSpace: false);
+            proj._speed = 2.0f;
+            proj.SetScaleToArea();
+
+            proj.CachedTrans.get_position_Injected(out Vector3 ret);
+            float randomX = UnityEngine.Random.value; float randomY = UnityEngine.Random.value;
+            float offset = (proj.IndexInWeapon == 0) ? 0.0f : 0.4f;
+            float area = weapon.PArea();
+            ret.Set(area * (randomX - 0.5f) * offset + ret.x, ret.y - area * (randomY - 0.5f) * offset, ret.z);
+            proj.CachedTrans.set_position_Injected(ref ret);
+
+            if (!proj._weapon.IsHoming)
+            {
+                proj.ApplyPlayerFacingVelocity(weapon.Owner.LastMovementDirection);
+            }
+            else
+            {
+                proj.AimForNearestEnemy();
+            }
+
+            if (Volume == null)
+            {
+                Volume = SafeAccess.GetProperty(weapon._currentWeaponData, nameof(WeaponData._volume_k__BackingField), Empty);
+            }
+            if (!Volume.HasValue) Volume.value = 0.4f;
+            SoundManager.PlaySound(SfxType.Shot, new SoundManager.SoundConfig() { Volume = Volume, Detune = proj._indexInWeapon * -100, Rate = 1.0f }, durationMillis: 200.0f);
+
+            proj._weapon.CritIndex += 1;
+            var mod = proj._weapon.CritIndex % weapon.CritChancesArray._size;
+
+            if (0.5f <= weapon.CritChancesArray[mod + 1]) proj._bounces = weapon.PBounces();
+        } // 0x00000001838BA260-0x00000001838BA8A0 // 0x00000001838BA960-0x00000001838BAA50
+    }
+}

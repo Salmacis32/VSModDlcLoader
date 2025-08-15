@@ -1,4 +1,6 @@
 ﻿using Il2CppInterop.Runtime.InteropTypes;
+using Il2CppSystem.Linq;
+using System.Linq;
 using Il2Col = Il2CppSystem.Collections.Generic;
 
 namespace TestVSMod.Util
@@ -20,6 +22,55 @@ namespace TestVSMod.Util
                 il2CppList.Add(enumerator.Current);
 
             return il2CppList;
+        }
+
+        /// <summary>
+        /// Return as Normal List
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="enumerable"></param>
+        /// <returns></returns>
+        public static IList<T> ToSystemList<T>(this Il2Col.IEnumerable<T> enumerable)
+        {
+            var enumerator = enumerable.ToList();
+
+            return enumerator.ToSystemList<T>();
+        }
+
+        /// <summary>
+        /// Return as Normal Hashset
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="hash"></param>
+        /// <returns></returns>
+        public static HashSet<T> ToHashSet<T>(this Il2Col.HashSet<T> hash)
+        {
+            var set = new HashSet<T>();
+            var enumerator = hash.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                set.Add(enumerator.Current);
+            }
+
+            return set;
+        }
+
+        /// <summary>
+        /// Return as Normal Hashset
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="hash"></param>
+        /// <returns></returns>
+        public static Il2Col.HashSet<T> ToIl2CppHashSet<T>(this HashSet<T> hash)
+        {
+            var set = new Il2Col.HashSet<T>();
+            var enumerator = hash.GetEnumerator();
+            while (enumerator.MoveNext())
+            {
+                set.Add(enumerator.Current);
+            }
+
+            return set;
         }
 
         /// <summary>

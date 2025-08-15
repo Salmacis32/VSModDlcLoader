@@ -1,23 +1,13 @@
 ﻿using AudioImportLib;
 using HarmonyLib;
-using Il2CppDarkTonic.MasterAudio;
-using Il2CppInterop.Runtime.Runtime;
 using Il2CppNewtonsoft.Json;
 using Il2CppVampireSurvivors.Data;
 using Il2CppVampireSurvivors.Data.Weapons;
 using Il2CppVampireSurvivors.Framework;
-using Il2CppVampireSurvivors.Framework.DLC.Types;
-using Il2CppVampireSurvivors.Framework.Loading;
-using Il2CppVampireSurvivors.Objects;
-using Il2CppVampireSurvivors.Objects.Weapons;
 using MelonLoader;
 using MelonLoader.Utils;
 using TestVSMod.Models;
 using TestVSMod.Patches;
-using UnityEngine;
-using UnityEngine.AddressableAssets;
-using static Il2CppDarkTonic.MasterAudio.MasterAudio;
-using static Il2CppVampireSurvivors.Objects.Characters.CharacterController_Support;
 using Il2Col = Il2CppSystem.Collections.Generic;
 
 [assembly: MelonInfo(typeof(TestVSMod.Core), "TestVSMod", "1.0.0", "warde", null)]
@@ -31,32 +21,32 @@ namespace TestVSMod
     {
         public static IEnumerable<WeaponInfo> ModdedWeaponInfo;
         public static Il2Col.Dictionary<WeaponType, Il2Col.List<WeaponData>> Il2CppModdedWeaponInfo;
-        public static GameManager GameManager;
         public static string MusicJson;
         public static IDictionary<int, SongData[]> Music;
-        private const int SongIdStart = 1410;
 
         public override void OnInitializeMelon()
         {
-            LoggerInstance.Msg("Initialized.");
+            LoggerInstance.Msg("Initializing...");
             ModdedWeaponInfo = new List<WeaponInfo>();
-            LoggerInstance.Msg("Created ModdedWeaponInfo.");
             Il2CppModdedWeaponInfo = new Il2Col.Dictionary<WeaponType, Il2Col.List<WeaponData>>();
-            LoggerInstance.Msg("Created Il2CppModdedWeaponInfo.");
+            LoggerInstance.Msg("Created Il2CppModdedWeaponInfo and ModdedWeaponInfo.");
+
             HarmonyLib.Harmony harmony = HarmonyInstance;
-            var methods = WeaponPatches.Methods;
-            /*
-            var prefix = typeof(WeaponPatches).GetMethod(nameof(WeaponPatches.Prefix));
-            foreach (var method in methods)
-            {
-                if (method.Name == nameof(Weapon.HandlePlayerTeleport)) continue;
-                harmony.Patch(method, new HarmonyMethod(prefix));
-            }
-            */
             var ass = MelonAssembly.Assembly;
             
             LoadWeaponJson(ass);
+            LoggerInstance.Msg("Weapons Loaded.");
             LoadMusic(ass);
+            LoggerInstance.Msg("Music Loaded.");
+
+            ProjectilePatches.Initialize();
+            var methods = ProjectilePatches.Methods;
+            harmony.Patch(methods[0], new HarmonyMethod(typeof(ProjectilePatches).GetMethod(nameof(ProjectilePatches.InitPrefix))));
+            harmony.Patch(methods[1], new HarmonyMethod(typeof(ProjectilePatches).GetMethod(nameof(ProjectilePatches.DespawnPrefix))));
+            harmony.Patch(methods[2], new HarmonyMethod(typeof(ProjectilePatches).GetMethod(nameof(ProjectilePatches.InternalUpdatePrefix))));
+            LoggerInstance.Msg("Projectiles Patched.");
+
+            LoggerInstance.Msg("Initialize Complete.");
         }
 
         private static void LoadMusic(System.Reflection.Assembly ass)
@@ -65,7 +55,7 @@ namespace TestVSMod
             var read2 = new StreamReader(mdmj);
             MusicJson = read2.ReadToEnd();
             Music = new Dictionary<int, SongData[]>();
-            int id = SongIdStart;
+            int id = Constants.MUSIC_START_ID;
             AddSong(id, "PAC TRONICA", ["BGM_Pactronica1.wav", "BGM_Pactronica2.wav"]); id++;
             AddSong(id, "PAC MADNESS", ["BGM_Pacmadness1.wav", "BGM_Pacmadness2.wav"]); id++;
             AddSong(id, "PAC TOY BOX", ["BGM_Pactoybox1.wav", "BGM_Pactoybox2.wav"]); id++;
@@ -96,12 +86,15 @@ namespace TestVSMod
 
         public override void OnDeinitializeMelon()
         {
+            LoggerInstance.Msg("Deinitializing...");
             ModdedWeaponInfo = null;
             Il2CppModdedWeaponInfo = null;
-            LoggerInstance.Msg("Set lists to null.");
             Music = null;
             MusicJson = null;
-            GameManager = null;
+            ProjectilePatches.Deinitialize();
+            GameManagerPatches.Deinitialize();
+            LocalizationManagerPatches.Deinitialize();
+            LoggerInstance.Msg("Deinitialize Complete.");
         }
         /*
         [HarmonyPatch(typeof(LicenseManager))]

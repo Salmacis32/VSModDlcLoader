@@ -21,6 +21,18 @@ namespace TestVSMod.Util
         }
 
         /// <summary>
+        /// Return as Normal List
+        /// </summary>
+        public static IList<T> ToSystemList<T>(this Il2Col.List<T> list)
+        {
+            var sysList = new List<T>();
+            foreach (var item in list)
+                sysList.Add(item);
+
+            return sysList;
+        }
+
+        /// <summary>
         /// Return as Il2CppReferenceArray
         /// </summary>
         public static Il2CppReferenceArray<T> ToIl2CppReferenceArray<T>(this List<T> list)
