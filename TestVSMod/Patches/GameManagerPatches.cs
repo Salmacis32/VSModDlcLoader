@@ -5,7 +5,6 @@ using Il2CppVampireSurvivors.Framework;
 using Il2CppVampireSurvivors.Objects.Projectiles;
 using UnityEngine;
 using vsML.Models;
-using static Il2CppSystem.Globalization.CultureInfo;
 
 namespace vsML.Patches
 {

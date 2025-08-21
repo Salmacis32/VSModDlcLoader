@@ -12,7 +12,6 @@ using vsML.Factories;
 using UnityEngine;
 using Il2Col = Il2CppSystem.Collections.Generic;
 using MelonLoader;
-using System.Text;
 
 namespace vsML.Patches
 {

@@ -497,8 +497,6 @@
 
 	<ItemGroup>
 		<Compile Include="Constants.cs" />
-		<Compile Include="Patches\ButtonNavigatorPatches.cs" />
-		<Compile Include="Patches\OptionsControllerPatches.cs" />
 		<Compile Include="vsMLCore.cs" />
 		<Compile Include="Factories\DynamicSoundGroupFactory.cs" />
 		<Compile Include="Models\ModProjectile.cs" />
