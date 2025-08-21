@@ -42,7 +42,7 @@ namespace vsML
 
         // Dipswitches for turning on and off functionality. (for testing purposes)
         private static readonly bool _shouldLoadMusic = true;
-        private static readonly bool _shouldLoadWeapons = true;
+        private static readonly bool _shouldLoadWeapons = false;
 
         public override void OnDeinitializeMelon()
         {
