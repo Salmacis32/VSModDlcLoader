@@ -14,6 +14,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 	</PropertyGroup>
 	<ItemGroup>
+	  <None Remove="Data\ALBUM_DATA.json" />
 	  <None Remove="Data\musicData_Modded.json" />
 	  <None Remove="Data\WEAPON_DATA.json" />
 	</ItemGroup>
@@ -517,6 +518,10 @@
 	<ItemGroup>
 	  <EmbeddedResource Include="Data\musicData_Modded.json" />
 	  <EmbeddedResource Include="Data\WEAPON_DATA.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Resource Include="Data\ALBUM_DATA.json" />
 	</ItemGroup>
 	
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">

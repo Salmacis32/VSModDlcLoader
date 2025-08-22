@@ -8,16 +8,19 @@ namespace vsML.Models
     /// </summary>
     public class SongData
     {
-        public SongData(AudioClip clip, string name, bool loop = true)
+        public SongData(AudioClip clip, string name, string album, bool loop = true)
         {
             Clip = clip;
             Name = name;
             Loop = loop;
-        }
+            Album = album;
+        }   
 
         public AudioClip Clip { get; set; }
         public string Name { get; set; }
 
         public bool Loop { get; set; }
+
+        public string Album { get; set; }
     }
 }
